@@ -1,1 +1,163 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nordgard – Clan der Wölfe & Bären</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+</head>
+<body>
 
+<!-- ===== STARTBILDSCHIRM ===== -->
+<div id="screen-start" class="screen active">
+  <div class="rune-bg"></div>
+  <div class="start-content">
+    <h1 class="game-title">NORDGARD</h1>
+    <p class="game-subtitle">Wähle deinen Clan und führe dein Volk zum Sieg</p>
+    <div class="clan-choice">
+      <div class="clan-card" id="clan-wolf" onclick="selectClan('wolf')">
+        <div class="clan-icon">🐺</div>
+        <h2>Clan des Wolfes</h2>
+        <p>Krieger des Schattens.<br/>+20% Kampfkraft, schnellere Späher</p>
+        <div class="clan-bonus">
+          <span>⚔️ Stärke</span>
+          <span>👁️ Aufklärung</span>
+        </div>
+      </div>
+      <div class="clan-vs">VS</div>
+      <div class="clan-card" id="clan-bear" onclick="selectClan('bear')">
+        <div class="clan-icon">🐻</div>
+        <h2>Clan des Bären</h2>
+        <p>Hüter des Waldes.<br/>+20% Ressourcen, stärkere Verteidigung</p>
+        <div class="clan-bonus">
+          <span>🪵 Ernte</span>
+          <span>🛡️ Verteidigung</span>
+        </div>
+      </div>
+    </div>
+    <button id="btn-start" class="btn-primary" onclick="startGame()" disabled>Clan wählen</button>
+  </div>
+</div>
+
+<!-- ===== SPIELBILDSCHIRM ===== -->
+<div id="screen-game" class="screen">
+
+  <!-- Topbar -->
+  <div id="topbar">
+    <div class="clan-badge" id="player-badge">
+      <span id="player-icon">🐺</span>
+      <span id="player-name">Wolfsclan</span>
+    </div>
+    <div class="resources">
+      <div class="res" title="Nahrung"><span>🍖</span><span id="res-food">50</span></div>
+      <div class="res" title="Holz"><span>🪵</span><span id="res-wood">30</span></div>
+      <div class="res" title="Eisen"><span>⚙️</span><span id="res-iron">10</span></div>
+      <div class="res" title="Gold"><span>💰</span><span id="res-gold">20</span></div>
+      <div class="res res-pop" title="Bevölkerung"><span>👥</span><span id="res-pop">5</span>/<span id="res-maxpop">10</span></div>
+    </div>
+    <div class="timer-area">
+      <div class="season-display"><span id="season-icon">❄️</span><span id="season-name">Winter</span></div>
+      <div class="timer" id="game-timer">15:00</div>
+    </div>
+    <div class="enemy-badge" id="enemy-badge">
+      <span id="enemy-icon">🐻</span>
+      <span id="enemy-name">Bärenclan</span>
+    </div>
+  </div>
+
+  <!-- Karte -->
+  <div id="map-container">
+    <canvas id="game-canvas"></canvas>
+    <div id="tile-tooltip"></div>
+  </div>
+
+  <!-- Seitenleiste -->
+  <div id="sidebar">
+    <div class="sidebar-section">
+      <h3>Dorf</h3>
+      <div class="building-list" id="building-list">
+        <div class="building-item" id="b-house">
+          <span class="b-icon">🏠</span>
+          <div class="b-info">
+            <strong>Hütte</strong><small>+5 Max-Pop</small>
+          </div>
+          <button class="btn-build" onclick="buildBuilding('house')">🪵5 ⚙️2</button>
+        </div>
+        <div class="building-item" id="b-farm">
+          <span class="b-icon">🌾</span>
+          <div class="b-info">
+            <strong>Farm</strong><small>+3 Nahrung/s</small>
+          </div>
+          <button class="btn-build" onclick="buildBuilding('farm')">🪵8</button>
+        </div>
+        <div class="building-item" id="b-lumberjack">
+          <span class="b-icon">🪓</span>
+          <div class="b-info">
+            <strong>Holzfäller</strong><small>+2 Holz/s</small>
+          </div>
+          <button class="btn-build" onclick="buildBuilding('lumberjack')">🍖5</button>
+        </div>
+        <div class="building-item" id="b-mine">
+          <span class="b-icon">⛏️</span>
+          <div class="b-info">
+            <strong>Mine</strong><small>+1 Eisen/s</small>
+          </div>
+          <button class="btn-build" onclick="buildBuilding('mine')">🪵10 💰5</button>
+        </div>
+        <div class="building-item" id="b-market">
+          <span class="b-icon">🏪</span>
+          <div class="b-info">
+            <strong>Markt</strong><small>+2 Gold/s</small>
+          </div>
+          <button class="btn-build" onclick="buildBuilding('market')">🪵12 ⚙️3</button>
+        </div>
+        <div class="building-item" id="b-barracks">
+          <span class="b-icon">⚔️</span>
+          <div class="b-info">
+            <strong>Kaserne</strong><small>Krieger ausbilden</small>
+          </div>
+          <button class="btn-build" onclick="buildBuilding('barracks')">🪵15 ⚙️8</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Armee</h3>
+      <div id="army-info">
+        <div class="army-row">
+          <span>👤 Einwohner:</span><span id="workers">5</span>
+        </div>
+        <div class="army-row">
+          <span>⚔️ Krieger:</span><span id="warriors">0</span>
+        </div>
+        <div class="army-row">
+          <span>💪 Stärke:</span><span id="army-power">0</span>
+        </div>
+        <button class="btn-recruit" id="btn-recruit" onclick="recruitWarrior()">Krieger ausbilden<br/><small>🍖8 ⚙️5 💰3</small></button>
+        <button class="btn-attack" id="btn-attack" onclick="attackEnemy()">⚔️ ANGREIFEN</button>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Ereignisse</h3>
+      <div id="event-log"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== ENDBILDSCHIRM ===== -->
+<div id="screen-end" class="screen">
+  <div class="end-content">
+    <div id="end-icon" class="end-icon">🏆</div>
+    <h1 id="end-title">Sieg!</h1>
+    <p id="end-message">Dein Clan hat gesiegt!</p>
+    <div id="end-stats" class="end-stats"></div>
+    <button class="btn-primary" onclick="resetGame()">Nochmal spielen</button>
+  </div>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>
