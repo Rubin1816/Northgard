@@ -1,10 +1,7 @@
-// ── Symbols & Weights ────────────────────────────────
-const SYMBOLS = ['🍒', '🍋', '🍇', '🔔', '💎', '7️⃣'];
+// ── Symbole & Auszahlungen ───────────────────────────
+const SYMBOLS  = ['🍒','🍋','🍇','🔔','💎','7️⃣'];
+const WEIGHTS  = [18, 16, 12, 8, 4, 2];   // Summe = 60
 
-// Higher weight = more common; weights sum to 60
-const WEIGHTS = [18, 16, 12, 8, 4, 2];
-
-// Win multipliers for 3-of-a-kind
 const PAYOUTS = {
   '7️⃣': 50,
   '💎': 25,
@@ -15,8 +12,8 @@ const PAYOUTS = {
 };
 
 // ── State ────────────────────────────────────────────
-let balance   = 100;
-let bet       = 10;
+let balance    = 100;
+let bet        = 10;
 let isSpinning = false;
 
 // ── DOM ──────────────────────────────────────────────
@@ -29,255 +26,193 @@ const spinBtn    = document.getElementById('spin-btn');
 const betUpBtn   = document.getElementById('bet-up');
 const betDownBtn = document.getElementById('bet-down');
 const resetBtn   = document.getElementById('reset-btn');
-const payline    = document.getElementById('payline');
+const paylineEl  = document.getElementById('payline');
 
-const strips  = [
-  document.getElementById('strip-0'),
-  document.getElementById('strip-1'),
-  document.getElementById('strip-2'),
-];
-const reels = [
-  document.getElementById('reel-0'),
-  document.getElementById('reel-1'),
-  document.getElementById('reel-2'),
+// Die einzelnen Symbol-Anzeige-Elemente (je 1 pro Walze)
+const symbolEls = [
+  document.getElementById('sym-0'),
+  document.getElementById('sym-1'),
+  document.getElementById('sym-2'),
 ];
 
-// ── Weighted random symbol ────────────────────────────
+// ── Gewichteter Zufalls-Symbol-Pick ──────────────────
 function pickSymbol() {
   const total = WEIGHTS.reduce((a, b) => a + b, 0);
-  let rand = Math.random() * total;
+  let r = Math.random() * total;
   for (let i = 0; i < SYMBOLS.length; i++) {
-    rand -= WEIGHTS[i];
-    if (rand <= 0) return SYMBOLS[i];
+    r -= WEIGHTS[i];
+    if (r <= 0) return SYMBOLS[i];
   }
   return SYMBOLS[0];
 }
 
-// ── Build a reel strip with many symbols ─────────────
-function buildStrip(finalSymbol) {
-  // Create a long list of random symbols ending with the final result
-  const count = 24; // fake symbols to scroll through
-  const list  = [];
-  for (let i = 0; i < count; i++) list.push(pickSymbol());
-  list.push(finalSymbol); // guaranteed last
-  return list;
-}
-
-// ── Spin one reel with animation ─────────────────────
-function spinReel(reelIndex, finalSymbol, spinDuration) {
+// ── Walze animieren: schnelles Durchblättern, dann stoppen ──
+function spinReel(index, finalSymbol, stopAfterMs) {
   return new Promise(resolve => {
-    const strip      = strips[reelIndex];
-    const reelEl     = reels[reelIndex];
-    const symbolH    = strip.parentElement.clientHeight; // 72px
-    const symbols    = buildStrip(finalSymbol);
+    const el = symbolEls[index];
+    el.classList.add('spinning');
 
-    // Populate strip with all symbols
-    strip.innerHTML = symbols.map(s => `<div class="symbol">${s}</div>`).join('');
+    // Während des Drehens: alle 80ms neues zufälliges Symbol zeigen
+    const interval = setInterval(() => {
+      el.textContent = pickSymbol();
+    }, 80);
 
-    // Set initial position to the top
-    strip.style.transition = 'none';
-    strip.style.transform  = 'translateY(0)';
-
-    reelEl.classList.add('spinning');
-
-    // Calculate total scroll distance (stop at last symbol)
-    const totalDist = (symbols.length - 1) * symbolH;
-
-    // Small delay so the initial state renders
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        strip.style.transition = `transform ${spinDuration}ms cubic-bezier(0.25, 0.1, 0.25, 1)`;
-        strip.style.transform  = `translateY(-${totalDist}px)`;
-
-        setTimeout(() => {
-          reelEl.classList.remove('spinning');
-          resolve(finalSymbol);
-        }, spinDuration);
-      });
-    });
+    // Nach stopAfterMs: Endwert setzen und Animation beenden
+    setTimeout(() => {
+      clearInterval(interval);
+      el.textContent = finalSymbol;
+      el.classList.remove('spinning');
+      // Kurzes "Einrasten"-Feedback
+      el.classList.add('land');
+      setTimeout(() => el.classList.remove('land'), 300);
+      resolve(finalSymbol);
+    }, stopAfterMs);
   });
 }
 
-// ── Calculate win ─────────────────────────────────────
+// ── Gewinn berechnen ──────────────────────────────────
 function calcWin(results) {
   const [a, b, c] = results;
 
-  // Jackpot: three 7s
-  if (a === '7️⃣' && b === '7️⃣' && c === '7️⃣') {
+  if (a === '7️⃣' && b === '7️⃣' && c === '7️⃣')
     return { mult: PAYOUTS['7️⃣'], type: 'jackpot' };
-  }
 
-  // Three of a kind
-  if (a === b && b === c) {
+  if (a === b && b === c)
     return { mult: PAYOUTS[a] || 5, type: 'three' };
-  }
 
-  // Two cherries (any position)
-  const cherryCount = results.filter(s => s === '🍒').length;
-  if (cherryCount >= 2) {
+  const cherries = results.filter(s => s === '🍒').length;
+  if (cherries >= 2)
     return { mult: 2, type: 'two-cherry' };
-  }
 
   return { mult: 0, type: 'loss' };
 }
 
-// ── Coin rain ─────────────────────────────────────────
+// ── Münzregen ─────────────────────────────────────────
 function coinRain(count = 20) {
+  const coins = ['🪙','💰','⭐','✨'];
   for (let i = 0; i < count; i++) {
     setTimeout(() => {
-      const coin  = document.createElement('div');
-      coin.classList.add('coin');
-      coin.textContent = ['🪙', '💰', '⭐', '✨'][Math.floor(Math.random() * 4)];
-      coin.style.left  = `${Math.random() * 95}vw`;
-      coin.style.top   = '-30px';
-      document.body.appendChild(coin);
-      coin.addEventListener('animationend', () => coin.remove());
-    }, i * 60);
+      const el   = document.createElement('div');
+      el.classList.add('coin');
+      el.textContent = coins[Math.floor(Math.random() * coins.length)];
+      el.style.left  = Math.random() * 92 + 'vw';
+      document.body.appendChild(el);
+      el.addEventListener('animationend', () => el.remove());
+    }, i * 70);
   }
 }
 
-// ── Set message ───────────────────────────────────────
-function setMessage(text, type = '') {
-  msgBoard.className = 'message-board';
-  if (type) msgBoard.classList.add(type);
+// ── Nachricht setzen ──────────────────────────────────
+function setMessage(text, type) {
+  msgBoard.className = 'message-board' + (type ? ' ' + type : '');
   msgText.textContent = text;
 }
 
-// ── Update UI ─────────────────────────────────────────
+// ── UI aktualisieren ──────────────────────────────────
 function updateUI() {
   balanceEl.textContent  = balance;
   betEl.textContent      = bet;
 
-  // Low balance warning
-  balanceEl.classList.toggle('low', balance <= 20 && balance > 0);
+  balanceEl.classList.toggle('low', balance > 0 && balance <= 20);
 
-  // Disable buttons
   spinBtn.disabled    = isSpinning || balance < bet;
   betUpBtn.disabled   = isSpinning || bet >= 50;
   betDownBtn.disabled = isSpinning || bet <= 5;
   resetBtn.disabled   = isSpinning;
 }
 
-// ── Main Spin ─────────────────────────────────────────
+// ── Spin ──────────────────────────────────────────────
 async function spin() {
   if (isSpinning || balance < bet) return;
 
   isSpinning = true;
-  payline.classList.remove('active');
+  paylineEl.classList.remove('active');
+  symbolEls.forEach(el => el.classList.remove('winner'));
 
-  // Deduct bet
+  // Einsatz abziehen
   balance -= bet;
   winningsEl.textContent = 0;
   updateUI();
   setMessage('Walzen drehen sich…');
 
-  // Pick final results
+  // Ergebnis vorher auswürfeln
   const results = [pickSymbol(), pickSymbol(), pickSymbol()];
 
-  // Staggered spin durations (left → right)
-  const durations = [900, 1300, 1700];
+  // Walzen gestaffelt stoppen (links zuerst)
+  await Promise.all([
+    spinReel(0, results[0], 900),
+    spinReel(1, results[1], 1400),
+    spinReel(2, results[2], 1900),
+  ]);
 
-  // Launch all three reels concurrently
-  await Promise.all(
-    results.map((sym, i) => spinReel(i, sym, durations[i]))
-  );
+  // Kurze Pause, damit man die Symbole sieht
+  await new Promise(r => setTimeout(r, 200));
 
-  // Evaluate
+  // Gewinn auswerten
   const { mult, type } = calcWin(results);
-  const winAmount = Math.round(bet * mult);
+  const win = Math.round(bet * mult);
 
   if (mult > 0) {
-    balance += winAmount;
-    winningsEl.textContent = winAmount;
-
-    // Highlight winning reels
-    if (type === 'three' || type === 'jackpot') {
-      reels.forEach(r => r.classList.add('winner'));
-    } else if (type === 'two-cherry') {
-      results.forEach((s, i) => {
-        if (s === '🍒') reels[i].classList.add('winner');
-      });
-    }
-
-    payline.classList.add('active');
+    balance += win;
+    winningsEl.textContent = win;
+    paylineEl.classList.add('active');
 
     if (type === 'jackpot') {
-      setMessage(`🎰 JACKPOT! Du gewinnst ${winAmount}€! 🎰`, 'jackpot');
-      coinRain(35);
+      symbolEls.forEach(el => el.classList.add('winner'));
+      setMessage(`🎰 JACKPOT! +${win}€ 🎰`, 'jackpot');
+      coinRain(40);
     } else if (type === 'three') {
-      setMessage(`⭐ Drei gleiche! +${winAmount}€ gewonnen! ⭐`, 'win');
-      coinRain(12);
+      symbolEls.forEach(el => el.classList.add('winner'));
+      setMessage(`⭐ Drei gleiche! +${win}€ gewonnen!`, 'win');
+      coinRain(15);
     } else {
-      setMessage(`🍒 Zwei Kirschen! +${winAmount}€ gewonnen!`, 'win');
+      results.forEach((s, i) => { if (s === '🍒') symbolEls[i].classList.add('winner'); });
+      setMessage(`🍒 Zwei Kirschen! +${win}€ gewonnen!`, 'win');
     }
 
-    // Remove winner class after animation
     setTimeout(() => {
-      reels.forEach(r => r.classList.remove('winner'));
-      payline.classList.remove('active');
+      symbolEls.forEach(el => el.classList.remove('winner'));
+      paylineEl.classList.remove('active');
     }, 3000);
 
   } else {
-    setMessage(`Kein Glück… Versuch es nochmal!`, 'loss');
-    // Quick reel shake
-    reels.forEach((r, i) => {
-      setTimeout(() => {
-        r.style.animation = 'none';
-        r.style.transform = 'translateX(-4px)';
-        setTimeout(() => {
-          r.style.transform = 'translateX(4px)';
-          setTimeout(() => { r.style.transform = ''; }, 80);
-        }, 80);
-      }, i * 80);
-    });
+    setMessage('Kein Glück diesmal… Nochmal versuchen!', 'loss');
   }
 
-  // Game over?
   if (balance <= 0) {
-    setMessage('💸 Kein Guthaben mehr! Drück RESET.', 'loss');
-    spinBtn.disabled = true;
+    setMessage('💸 Kein Guthaben! Drück RESET.', 'loss');
   }
 
   isSpinning = false;
   updateUI();
 }
 
-// ── Bet controls ──────────────────────────────────────
+// ── Events ────────────────────────────────────────────
+spinBtn.addEventListener('click', spin);
+
 betUpBtn.addEventListener('click', () => {
-  if (bet < 50) {
-    bet = Math.min(50, bet + 5);
-    updateUI();
-  }
+  if (bet < 50) { bet = Math.min(50, bet + 5); updateUI(); }
 });
 
 betDownBtn.addEventListener('click', () => {
-  if (bet > 5) {
-    bet = Math.max(5, bet - 5);
-    updateUI();
-  }
+  if (bet > 5)  { bet = Math.max(5,  bet - 5); updateUI(); }
 });
 
-// ── Spin button ───────────────────────────────────────
-spinBtn.addEventListener('click', spin);
+resetBtn.addEventListener('click', () => {
+  if (isSpinning) return;
+  balance = 100; bet = 10;
+  winningsEl.textContent = 0;
+  symbolEls.forEach(el => el.classList.remove('winner'));
+  paylineEl.classList.remove('active');
+  setMessage('Neues Spiel — viel Glück!');
+  updateUI();
+});
 
-// ── Keyboard: SPACE or ENTER to spin ─────────────────
 document.addEventListener('keydown', e => {
   if ((e.code === 'Space' || e.code === 'Enter') && !isSpinning) {
     e.preventDefault();
     spin();
   }
-});
-
-// ── Reset ─────────────────────────────────────────────
-resetBtn.addEventListener('click', () => {
-  if (isSpinning) return;
-  balance = 100;
-  bet     = 10;
-  winningsEl.textContent = 0;
-  reels.forEach(r => r.classList.remove('winner'));
-  payline.classList.remove('active');
-  setMessage('Neues Spiel — viel Glück!');
-  updateUI();
 });
 
 // ── Init ──────────────────────────────────────────────
