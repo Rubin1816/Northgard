@@ -11,136 +11,130 @@
 </head>
 <body>
 
-  <div class="casino-bg">
-    <div class="lights-row top">
-      <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
-      <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
-      <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
-      <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
-    </div>
-
-    <main class="machine">
-      <header class="machine-header">
-        <div class="header-lights">
-          <span class="h-bulb"></span><span class="h-bulb"></span><span class="h-bulb"></span>
-          <span class="h-bulb"></span><span class="h-bulb"></span>
-        </div>
-        <h1 class="title">LUCKY SEVEN</h1>
-        <p class="subtitle">★ CASINO ROYALE ★</p>
-        <div class="header-lights">
-          <span class="h-bulb"></span><span class="h-bulb"></span><span class="h-bulb"></span>
-          <span class="h-bulb"></span><span class="h-bulb"></span>
-        </div>
-      </header>
-
-      <div class="credits-board">
-        <div class="credit-block">
-          <span class="credit-label">GUTHABEN</span>
-          <span class="credit-value" id="balance">100</span>
-          <span class="credit-currency">€</span>
-        </div>
-        <div class="credit-block highlight">
-          <span class="credit-label">EINSATZ</span>
-          <span class="credit-value" id="bet">10</span>
-          <span class="credit-currency">€</span>
-        </div>
-        <div class="credit-block">
-          <span class="credit-label">GEWINN</span>
-          <span class="credit-value" id="winnings">0</span>
-          <span class="credit-currency">€</span>
-        </div>
-      </div>
-
-      <div class="slot-cabinet">
-        <div class="payline-marker left">◄</div>
-        <div class="reels-wrapper">
-          <div class="reel-container" id="reel-0">
-            <div class="reel-mask">
-              <div class="reel-strip" id="strip-0">
-                <div class="symbol">🍒</div>
-              </div>
-            </div>
-          </div>
-          <div class="reel-divider"></div>
-          <div class="reel-container" id="reel-1">
-            <div class="reel-mask">
-              <div class="reel-strip" id="strip-1">
-                <div class="symbol">🍋</div>
-              </div>
-            </div>
-          </div>
-          <div class="reel-divider"></div>
-          <div class="reel-container" id="reel-2">
-            <div class="reel-mask">
-              <div class="reel-strip" id="strip-2">
-                <div class="symbol">🔔</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="payline-marker right">►</div>
-        <div class="payline-glow" id="payline"></div>
-      </div>
-
-      <div class="message-board" id="message-board">
-        <span id="message-text">Drück SPIN und bring Glück zum Leuchten!</span>
-      </div>
-
-      <div class="controls">
-        <div class="bet-controls">
-          <button class="btn-small" id="bet-down">▼ EINSATZ</button>
-          <button class="btn-small" id="bet-up">▲ EINSATZ</button>
-        </div>
-        <button class="btn-spin" id="spin-btn">
-          <span class="spin-label">SPIN</span>
-          <span class="spin-sub">🎰 Drehen!</span>
-        </button>
-        <button class="btn-small reset-btn" id="reset-btn">↺ RESET</button>
-      </div>
-
-      <div class="paytable">
-        <h3 class="paytable-title">— GEWINNTABELLE —</h3>
-        <div class="pay-rows">
-          <div class="pay-row jackpot-row">
-            <span class="pay-symbols">7️⃣ 7️⃣ 7️⃣</span>
-            <span class="pay-mult">× 50 JACKPOT!</span>
-          </div>
-          <div class="pay-row">
-            <span class="pay-symbols">💎 💎 💎</span>
-            <span class="pay-mult">× 25</span>
-          </div>
-          <div class="pay-row">
-            <span class="pay-symbols">🔔 🔔 🔔</span>
-            <span class="pay-mult">× 15</span>
-          </div>
-          <div class="pay-row">
-            <span class="pay-symbols">🍇 🍇 🍇</span>
-            <span class="pay-mult">× 10</span>
-          </div>
-          <div class="pay-row">
-            <span class="pay-symbols">🍋 🍋 🍋</span>
-            <span class="pay-mult">× 8</span>
-          </div>
-          <div class="pay-row">
-            <span class="pay-symbols">🍒 🍒 🍒</span>
-            <span class="pay-mult">× 5</span>
-          </div>
-          <div class="pay-row">
-            <span class="pay-symbols">🍒 🍒 ?</span>
-            <span class="pay-mult">× 2</span>
-          </div>
-        </div>
-      </div>
-    </main>
-
-    <div class="lights-row bottom">
-      <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
-      <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
-      <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
-      <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
-    </div>
+<div class="casino-bg">
+  <div class="lights-row">
+    <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
+    <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
+    <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
+    <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
   </div>
 
-  <script src="slot.js"></script>
+  <main class="machine">
+    <!-- Header -->
+    <header class="machine-header">
+      <div class="header-lights">
+        <span class="h-bulb"></span><span class="h-bulb"></span><span class="h-bulb"></span>
+        <span class="h-bulb"></span><span class="h-bulb"></span>
+      </div>
+      <h1 class="title">LUCKY SEVEN</h1>
+      <p class="subtitle">★ CASINO ROYALE ★</p>
+      <div class="header-lights">
+        <span class="h-bulb"></span><span class="h-bulb"></span><span class="h-bulb"></span>
+        <span class="h-bulb"></span><span class="h-bulb"></span>
+      </div>
+    </header>
+
+    <!-- Kontostand -->
+    <div class="credits-board">
+      <div class="credit-block">
+        <span class="credit-label">GUTHABEN</span>
+        <span class="credit-value" id="balance">100</span>
+        <span class="credit-currency">€</span>
+      </div>
+      <div class="credit-block highlight">
+        <span class="credit-label">EINSATZ</span>
+        <span class="credit-value" id="bet">10</span>
+        <span class="credit-currency">€</span>
+      </div>
+      <div class="credit-block">
+        <span class="credit-label">GEWINN</span>
+        <span class="credit-value" id="winnings">0</span>
+        <span class="credit-currency">€</span>
+      </div>
+    </div>
+
+    <!-- Walzen -->
+    <div class="slot-cabinet">
+      <span class="payline-marker">◄</span>
+      <div class="reels-wrapper">
+        <div class="reel-box">
+          <span class="reel-symbol" id="sym-0">🍒</span>
+        </div>
+        <div class="reel-divider"></div>
+        <div class="reel-box">
+          <span class="reel-symbol" id="sym-1">🍋</span>
+        </div>
+        <div class="reel-divider"></div>
+        <div class="reel-box">
+          <span class="reel-symbol" id="sym-2">🔔</span>
+        </div>
+      </div>
+      <span class="payline-marker">►</span>
+      <div class="payline-glow" id="payline"></div>
+    </div>
+
+    <!-- Nachricht -->
+    <div class="message-board" id="message-board">
+      <span id="message-text">Drück SPIN und bring Glück zum Leuchten!</span>
+    </div>
+
+    <!-- Bedienung -->
+    <div class="controls">
+      <div class="bet-controls">
+        <button class="btn-small" id="bet-up">▲ EINSATZ</button>
+        <button class="btn-small" id="bet-down">▼ EINSATZ</button>
+      </div>
+      <button class="btn-spin" id="spin-btn">
+        <span class="spin-label">SPIN</span>
+        <span class="spin-sub">🎰 Drehen!</span>
+      </button>
+      <button class="btn-small" id="reset-btn">↺ RESET</button>
+    </div>
+
+    <!-- Gewinntabelle -->
+    <div class="paytable">
+      <h3 class="paytable-title">— GEWINNTABELLE —</h3>
+      <div class="pay-rows">
+        <div class="pay-row jackpot-row">
+          <span class="pay-symbols">7️⃣ 7️⃣ 7️⃣</span>
+          <span class="pay-mult">× 50 JACKPOT!</span>
+        </div>
+        <div class="pay-row">
+          <span class="pay-symbols">💎 💎 💎</span>
+          <span class="pay-mult">× 25</span>
+        </div>
+        <div class="pay-row">
+          <span class="pay-symbols">🔔 🔔 🔔</span>
+          <span class="pay-mult">× 15</span>
+        </div>
+        <div class="pay-row">
+          <span class="pay-symbols">🍇 🍇 🍇</span>
+          <span class="pay-mult">× 10</span>
+        </div>
+        <div class="pay-row">
+          <span class="pay-symbols">🍋 🍋 🍋</span>
+          <span class="pay-mult">× 8</span>
+        </div>
+        <div class="pay-row">
+          <span class="pay-symbols">🍒 🍒 🍒</span>
+          <span class="pay-mult">× 5</span>
+        </div>
+        <div class="pay-row">
+          <span class="pay-symbols">🍒 🍒 ?</span>
+          <span class="pay-mult">× 2</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="lights-row">
+    <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
+    <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
+    <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
+    <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
+  </div>
+</div>
+
+<script src="slot.js"></script>
 </body>
 </html>
